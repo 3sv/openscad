@@ -1874,6 +1874,9 @@ void MainWindow::setRenderVariables(ContextHandle<BuiltinContext>& context)
   RenderVariables r = {
     .preview = this->is_preview,
     .time = this->animateWidget->getAnim_tval(),
+    .animateFPS = this->animateWidget->getAnim_fps(),
+    .animateSteps = this->animateWidget->getAnim_steps(),
+    .animatePlaying = this->animateWidget->getAnim_playing(),
     .camera = qglview->cam,
   };
   r.applyToContext(context);
@@ -2003,9 +2006,36 @@ void MainWindow::parseTopLevelDocument()
     //add parameters as annotation in AST
     CommentParser::collectParameters(fulltext, this->root_file);
     this->activeEditor->parameterWidget->setParameters(this->root_file, fulltext);
+    // apply parameters to the AST ---
     this->activeEditor->parameterWidget->applyParameters(this->root_file);
     this->activeEditor->parameterWidget->setEnabled(true);
     this->activeEditor->setIndicator(this->root_file->indicatorData);
+
+    ///
+    if (this->root_file && !this->animateWidget->isHidden()) {
+      auto parameters = ParameterObjects::fromSourceFile(this->root_file);
+
+      auto animateFps = session.try_lookup_special_variable("$animateFPS");
+      double animateFpsDouble = 0;
+      if (animateFps.has_value() && animateFps.value().getFiniteDouble(animateFpsDouble)) {
+        this->animateWidget->setAnim_fps(animateFpsDouble);
+      }
+
+      auto animateSteps = session.try_lookup_special_variable("$animateSteps");
+      unsigned int animateStepsInt = 0;
+      if (animateFps.has_value() && animateFps.value().getPositiveInt(animateStepsInt)) {
+        this->animateWidget->setAnim_steps(animateStepsInt);
+      }
+
+      auto animatePlaying = session.try_lookup_special_variable("$animatePlaying");
+      if (animatePlaying.has_value() && animatePlaying.value().isDefinedAs(Value::Type::BOOL)) {
+        bool animatePlayingbool = animateFps.value().toBool();
+        if (animatePlayingbool != this->animateWidget->getAnim_playing()) {
+          this->animateWidget->on_pauseButton_pressed();
+        }
+      }
+    }
+
   } else {
     this->activeEditor->parameterWidget->setEnabled(false);
   }
@@ -2059,6 +2089,35 @@ void MainWindow::actionUpdateView()
   autoPrepareCompile();
   const auto reloadFileFromDisk = false;
   compile(reloadFileFromDisk);
+
+  // if (this->root_file && !this->animateWidget->isHidden()) {
+  //   for (const auto& assignment : sourceFile->scope.assignments) {
+  //   }
+  // }
+
+  // if (this->root_file && !this->animateWidget->isHidden()) {
+  //   auto parameters = ParameterObjects::fromSourceFile(this->root_file);
+
+  //   auto animateFps = session.try_lookup_special_variable("$animateFPS");
+  //   double animateFpsDouble = 0;
+  //   if (animateFps.has_value() && animateFps.value().getFiniteDouble(animateFpsDouble)) {
+  //     this->animateWidget->setAnim_fps(animateFpsDouble);
+  //   }
+
+  //   auto animateSteps = session.try_lookup_special_variable("$animateSteps");
+  //   unsigned int animateStepsInt = 0;
+  //   if (animateFps.has_value() && animateFps.value().getPositiveInt(animateStepsInt)) {
+  //     this->animateWidget->setAnim_steps(animateStepsInt);
+  //   }
+
+  //   auto animatePlaying = session.try_lookup_special_variable("$animatePlaying");
+  //   if (animatePlaying.has_value() && animatePlaying.value().isDefinedAs(Value::Type::BOOL)) {
+  //     bool animatePlayingbool = animateFps.value().toBool();
+  //     if (animatePlayingbool != this->animateWidget->getAnim_playing()) {
+  //       this->animateWidget->on_pauseButton_pressed();
+  //     }
+  //   }
+  // }
 }
 
 void MainWindow::actionReloadView()

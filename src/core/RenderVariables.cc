@@ -8,6 +8,10 @@ RenderVariables::applyToContext(ContextHandle<BuiltinContext>& context) const
   context->set_variable("$preview", preview);
   context->set_variable("$t", time);
 
+  context->set_variable("$animateFPS", animateFPS);
+  context->set_variable("$animateSteps", animateSteps);
+  context->set_variable("$animatePlaying", animatePlaying);
+
   const auto vpr = camera.getVpr();
   context->set_variable("$vpr",
     VectorType(context->session(), vpr.x(), vpr.y(), vpr.z()));

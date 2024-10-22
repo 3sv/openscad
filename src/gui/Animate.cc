@@ -340,6 +340,13 @@ double Animate::getAnim_tval(){
   return anim_tval;
 }
 
+void Animate::setAnim_fps(double fps) { e_fps->setText(QString::number(fps)); }
+void Animate::setAnim_steps(int steps) { e_fsteps->setText(QString::number(steps)); }
+
+double Animate::getAnim_fps() { return e_fps->text().toDouble(); }
+int Animate::getAnim_steps() { return e_fsteps->text().toInt(); }
+bool Animate::getAnim_playing() { return animate_timer->isActive(); }
+
 void Animate::on_pushButton_MoveToBeginning_clicked(){
   pauseAnimation();
   this->anim_step = 0;

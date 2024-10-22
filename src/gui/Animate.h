@@ -37,6 +37,13 @@ public:
 
   const QList<QAction *>& actions();
   double getAnim_tval();
+  double getAnim_fps();
+  void setAnim_fps(double fps);
+
+  int getAnim_steps();
+  void setAnim_steps(int steps);
+
+  bool getAnim_playing();
 
 public slots:
   void animateUpdate();
@@ -49,6 +56,7 @@ public slots:
   void on_pushButton_StepBack_clicked();
   void on_pushButton_StepForward_clicked();
   void on_pushButton_MoveToEnd_clicked();
+  void on_pauseButton_pressed();
 
 protected:
   void resizeEvent(QResizeEvent *event) override;
@@ -85,5 +93,4 @@ private slots:
   void updatedAnimDump(bool checked);
   void incrementTVal();
   void updateTVal();
-  void on_pauseButton_pressed();
 };
